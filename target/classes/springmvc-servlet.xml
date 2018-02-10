@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<!-- 启用注解 -->
+	<context:annotation-config/>
+	<!-- 启动组件扫描，排除@Service组件，注：如果此处必须排除掉@Service组件   
+	    原因：springmvc的配置文件与spring的配置文件不是同时加载，如果这边不进行这样的设置，  
+	    那么，spring就会将所有带@Service注解的类都扫描到容器中，  
+	    等到加载spring的配置文件的时候，会因为容器已经存在Service类，  
+	    使得cglib将不对Service进行代理，直接导致的结果就是在spring配置文件中的事务配置不起作用，发生异常时，无法对数据进行回滚   
+    -->
+	<context:component-scan base-package="com.heykeel.controller"> 
+		<context:include-filter type="annotation"  
+            expression="org.springframework.stereotype.Controller" />  
+    </context:component-scan>
+	<context:component-scan base-package="com.heykeel.controller.admin"> 
+		<context:include-filter type="annotation"  
+            expression="org.springframework.stereotype.Controller" />  
+    </context:component-scan>
+	<!-- 配置注解映射器和注解适配器 -->
+	<mvc:annotation-driven />
+	<!-- 视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
+		
+</beans>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.heykeel.dao.BlogDao">
+	<resultMap type="Blog" id="BlogResult">
+		<id property="id" column="id" />
+		<result property="title" column="title" />
+		<result property="summary" column="summary" />
+		<result property="releaseDate" column="releaseDate" />
+		<result property="releaseDateStr" column="releaseDateStr" />
+		<result property="clickHit" column="clickHit" />
+		<result property="replyHit" column="replyHit" />
+		<result property="content" column="content" />
+		<result property="keyWord" column="keyWord" />
+		<association property="blogType" column="typeId"
+			select="com.heykeel.dao.BlogTypeDao.getTypeById" />
+	</resultMap>
+
+	<select id="getBlogList" parameterType="Map" resultMap="BlogResult">
+		SELECT *
+		FROM t_blog 
+		ORDER BY releaseDate 
+		DESC LIMIT #{startNum},#{pageSize}
+	</select>
+	
+	<select id="getBlogListByType" parameterType="Map" resultMap="BlogResult">
+		SELECT *
+		FROM t_blog 
+		WHERE typeId=#{typeId} 
+		ORDER BY releaseDate 
+		DESC LIMIT #{startNum},#{pageSize}
+	</select>
+	
+	<select id="getBlogListByDate" resultMap="BlogResult">
+		SELECT *
+		FROM t_blog 
+		WHERE releaseDateStr=#{0} 
+		ORDER BY releaseDate 
+		DESC LIMIT #{1},#{2}
+	</select>
+
+	<select id="getBlogById" parameterType="Integer" resultMap="BlogResult">
+		SELECT * 
+		FROM t_blog 
+		WHERE id=#{id}
+	</select>
+
+	<select id="getBlogSize" resultType="Integer">
+		SELECT COUNT(*) 
+		FROM t_blog
+	</select>
+	
+	<select id="getBlogSizeByType" parameterType="Integer" resultType="Integer">
+		SELECT COUNT(*) 
+		FROM t_blog 
+		WHERE typeId=#{typeId}
+	</select>
+	
+	<select id="getBlogSizeByDate" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) 
+		FROM t_blog 
+		WHERE releaseDateStr=#{releaseDateStr}
+	</select>
+
+	<select id="getPrevBlog" parameterType="Integer" resultMap="BlogResult">
+		SELECT * 
+		FROM t_blog 
+		WHERE id&lt;#{id} 
+		ORDER BY id 
+		DESC LIMIT 1
+	</select>
+
+	<select id="getNextBlog" parameterType="Integer" resultMap="BlogResult">
+		SELECT * 
+		FROM t_blog 
+		WHERE id&gt;#{id} 
+		ORDER BY id 
+		ASC LIMIT 1
+	</select>
+
+	<insert id="addBlog" parameterType="Blog" keyProperty="id"
+		useGeneratedKeys="true">
+		INSERT INTO t_blog
+		VALUES(null,#{title},#{summary},now(),DATE_FORMAT(now(),'%Y-%m'),0,0,#{content},#{keyWord},#{blogType.id})
+	</insert>
+
+	<update id="updateBlog" parameterType="Blog">
+		UPDATE t_blog SET
+			title=#{title},
+			summary=#{summary},
+			releaseDate=now(),
+			releaseDateStr=DATE_FORMAT(now(),'%Y-%m'),
+			clickHit=#{clickHit},
+			replyHit=#{replyHit},
+			content=#{content},
+			keyWord=#{keyWord},
+			typeId=#{blogType.id}
+		WHERE id=#{id}
+	</update>
+	
+	<update id="updateClick">
+		UPDATE t_blog SET
+			clickHit=#{1}
+		WHERE id=#{0}
+	</update>
+	<update id="updateReply">
+		UPDATE t_blog SET
+			replyHit=#{1}
+		WHERE id=#{0}
+	</update>
+	
+	<delete id="deleteBlog" parameterType="Integer">
+		DELETE FROM t_blog 
+		WHERE id=#{id};
+	</delete>
+	
+</mapper>

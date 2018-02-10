@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.heykeel.dao.BlogTypeDao">
+	<resultMap type="BlogType" id="BlogTypeResult">
+		<id property="id" column="id" />
+		<result property="typeName" column="typeName" />
+		<result property="orderNum" column="orderNum" />
+		
+	</resultMap>
+
+	<select id="getBlogTypeListPage" parameterType="Map" resultMap="BlogTypeResult">
+		SELECT
+			t2.*,COUNT(t1.id) AS blogCount
+		FROM
+			t_blog t1
+			RIGHT JOIN t_blogtype t2
+		ON	t1.typeId = t2.id
+		GROUP BY t2.typeName
+		ORDER BY t2.orderNum
+		DESC LIMIT #{startNum},#{pageSize}
+	</select>
+	
+	<select id="getBlogTypeList" resultMap="BlogTypeResult">
+		SELECT
+			t2.*,COUNT(t1.id) AS blogCount
+		FROM
+			t_blog t1
+			RIGHT JOIN t_blogtype t2
+		ON	t1.typeId = t2.id
+		GROUP BY t2.typeName
+		ORDER BY t2.orderNum
+	</select>
+	
+	<select id="getTypeById" parameterType="Integer" resultMap="BlogTypeResult">
+		SELECT * FROM t_blogtype WHERE id=#{id}
+	</select>
+	
+	<select id="getBlogTypeSize" resultType="Integer">
+		SELECT COUNT(*) FROM t_blogtype
+	</select>
+	
+	<select id="addBlogType">
+		INSERT INTO t_blogtype
+		VALUES(null,#{0},#{1})
+	</select>
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.heykeel.dao.BloggerDao">
+	<resultMap type="Blogger" id="BloggerResult">
+		<id property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="nickname" column="nickname" />
+		<result property="sign" column="sign" />
+		<result property="imagename" column="imagename" />
+	</resultMap>
+
+	<select id="getBloggerData" resultMap="BloggerResult">
+		SELECT * FROM t_blogger WHERE id = 1;
+	</select>
+
+	<select id="updateBlogger" parameterType="Blogger">
+		UPDATE t_blogger
+		<set>
+			<if test="username!=null and username!=''">
+				username=#{username},
+			</if>
+			<if test="password!=null and password!=''">
+				password=#{password},
+			</if>
+			<if test="nickname!=null and nickname!=''">
+				nickname=#{nickname},
+			</if>
+			<if test="sign!=null and sign!=''">
+				sign=#{sign},
+			</if>
+			<if test="imagename!=null and imagename!=''">
+				imagename=#{imagename},
+			</if>
+		</set>
+		WHERE id = 1;
+	</select>
+
+</mapper>

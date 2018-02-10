@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<!-- 启用注解 -->
+	<context:annotation-config/>
+	<!-- 启动组件扫描，只扫描@Service注解 -->
+	<context:component-scan base-package="com.heykeel">
+		<context:exclude-filter type="annotation"  
+            expression="org.springframework.stereotype.Controller" />  
+    </context:component-scan>
+		
+	<!-- 配置数据源，使用阿里巴巴连接池Druid -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">    
+        <property name="locations">    
+        	<value>classpath:properties\jdbc.properties</value>    
+        </property>    
+    </bean>    
+	
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.usr}"/>
+		<property name="password" value="${jdbc.pwd}"/>
+	</bean>
+	
+	<!-- 配置mybatis的sqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描mappers.xml -->
+		<property name="mapperLocations" value="classpath:com/heykeel/mapper/*.xml" />
+		<!-- 配置别名 -->
+		<property name="typeAliasesPackage" value="com.heykeel.entity" />  
+	</bean>
+	
+	<!-- 扫描mapper接口，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.heykeel.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+	
+	<!-- 定义事务管理器 -->    
+	<bean id="transactionManager"    
+	    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">    
+	    <property name="dataSource" ref="dataSource" />    
+	</bean>
+	
+	<!-- AOP自动注解配置 -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	<!--使用注释事务 -->    
+	<tx:annotation-driven  transaction-manager="transactionManager" /> 
+	
+	<!-- 邮件配置 -->
+	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="smtp.qq.com" />
+        <property name="port" value="465" />
+        <property name="username" value="1943880182@qq.com" />
+        <property name="password" value="ytxzqbnvkbvjdgeh" />
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.timeout">50000</prop>
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.smtp.socketFactory.port">465</prop>
+                <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+                <prop key="mail.smtp.socketFactory.fallback">false</prop>
+            </props>
+        </property>
+    </bean>
+</beans>

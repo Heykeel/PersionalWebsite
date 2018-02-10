@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<context:component-scan base-package="com.heykeel.shiro" />
+
+	<!-- 配置securityManager，也就是shiro的核心  -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager" >
+		<property name="realm" ref="myRealm" />
+		<!-- 缓存管理器 -->
+		<property name="cacheManager" ref="cacheManager"></property>
+	</bean>
+	
+	<!-- 配置自定义的ShiroRealm -->
+	<bean id="myRealm" class="com.heykeel.shiro.MyRealm"></bean>
+	<!-- 配置缓存管理器 -->
+	<bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager" />
+	
+	<!-- 配置LifecycleBeanPostPRocessor,可以自动的来调用配置在Spring IOC容器中Shiro Bean的生命周期方法 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+	<!-- 启用IOC容器中的Shiro注解，前提是配置好LifecycleBeanPostPRocessor -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor" />
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor" depends-on="lifecycleBeanPostProcessor">
+		<property name="securityManager" ref="securityManager"></property>
+	</bean>
+	
+	<!-- 配置ShiroFilter，其id必须和web.xml文件中配置的DelegatingFilterProxy的filter-name一致 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/index.html" />
+		<property name="successUrl" value="/admin/blog.html" />
+		<property name="unauthorizedUrl" value="/index.html" />
+		<!-- 配置哪些页面需要受保护 ,以及访问这些页面需要的权限
+			anon可以被匿名访问，或者说游客可以访问
+			authc 必须认证之后才能访问，即登录后才能访问的页面
+		-->
+		<property name="filterChainDefinitions">
+			<value>
+				/index = anon
+				/aboutme = anon
+				/login = anon
+				/admin/** = authc
+			</value>
+		</property>
+	</bean>
+</beans>
